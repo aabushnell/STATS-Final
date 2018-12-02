@@ -1,0 +1,58 @@
+---
+title: "Tweets"
+author: "Aaron Bushnell"
+date: "12/2/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(readr)
+library(mdsr)
+library(tidyr)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+nouns <- read_csv('most-common-nouns-english.csv')
+words_file <- read_csv('words.csv')
+words <- words_file$Words
+
+
+text <- rt %>%
+  select(screen_name, text)
+
+
+match_words <- function(tweet){
+  matched_values <- sapply(words, grepl, tweet)
+  
+  return(matched_values)
+}
+
+most_common_words <- function(df){
+  text_matches <- data.frame(mapply(match_words, df$text)) 
+  
+  word_occurences <- text_matches %>%
+  cbind(rownames(text_matches)) %>%
+  rename(word = 'rownames(text_matches)') %>%
+  mutate(occurences = rowSums(. == TRUE)) %>%
+  select(word, occurences) %>%
+  arrange(desc(occurences))
+  
+  return(word_occurences)
+}
+
+most_common_words(text)
+
+
+present_words <- function(df, col_num){
+  words_present <- df %>%
+  gather(word, present) %>%
+  filter(present == TRUE)
+  
+  return(words_present)
+}
+
+present_words(matched)
+
+
+```
