@@ -28,22 +28,60 @@ match_words <- function(tweet){
   return(matched_values)
 }
 
+data.frame(mapply(match_words, text$text))
+
 most_common_words <- function(df){
   text_matches <- data.frame(mapply(match_words, df$text)) 
   
   word_occurences <- text_matches %>%
-  cbind(rownames(text_matches)) %>%
-  rename(word = 'rownames(text_matches)') %>%
-  mutate(occurences = rowSums(. == TRUE)) %>%
-  select(word, occurences) %>%
-  arrange(desc(occurences))
+    cbind(rownames(text_matches)) %>%
+    rename(word = 'rownames(text_matches)') %>%
+    mutate(occurences = rowSums(. == TRUE)) %>%
+    select(word, occurences) %>%
+    arrange(desc(occurences))
   
   return(word_occurences)
 }
 
 most_common_words(text)
 
+nth_word <- function(df, n) {
+  words <- most_common_words(text) %>%
+    head(n) %>%
+    select(word)
+  
+    return(as.character(words$word)[n])
+}
 
+nth_word(text, 1)
+
+lookup_nth_icon <- function(df, n){
+  word <- nth_word(df, n)
+  endpoint <- paste("icon", word, sep = "/")
+  
+  res <- get_nouns_api(endpoint = endpoint)
+  icon_res <- content(res,"parsed")
+  icon_url <- icon_res$icon$preview_url
+  
+  return(icon_url)
+}
+
+lookup_nth_icon(text, 1)
+
+
+nouns_app <- oauth_app("nouns_api", "052ecc4e19c341758fdd1bb618ce6cb4", "b1ca275beca84816ad5c16efe798b4e4")
+
+get_nouns_api <- function(endpoint, baseurl = "http://api.thenounproject.com/", app = nouns_app) {
+  url <- modify_url(baseurl, path = endpoint)
+  info <- oauth_signature(url, app = app)
+  header_oauth <- oauth_header(info)
+  GET(url, header_oauth)
+}
+
+```
+
+
+```{r}
 present_words <- function(df, col_num){
   words_present <- df %>%
   gather(word, present) %>%
