@@ -23,7 +23,9 @@ create_token(
   access_secret = "pbuRacyoSRgOQC8QAPYI65ci6MZEBNdtKt2lLwvqC0yTb")
 
 rt <- search_tweets(
-  "lang:en", geocode = q, n = 100)
+  "lang:en", geocode = '37.781157,-122.39720,1mi', n = 100)
+
+paste("1","mi", sep = "")
 
 google_api <- "https://maps.googleapis.com/maps/api/geocode/json"
 r <- GET(google_api, query=list(address=address))

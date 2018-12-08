@@ -1,11 +1,3 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
 
 library(shiny)
 
@@ -32,48 +24,80 @@ ui <- fluidPage(
         textInput("secret_token",
                   "Twitter API Access Token Secret:"),
         
-        radioButtons("google",
-                     "Address Search?",
-                     choices = c("No" = "no",
-                                 "Yes" = "yes"),
+        textInput("google_key",
+                  "Google API Key:"),
+        
+        radioButtons("search_meth",
+                     "Search Method:",
+                     choices = c("Lat/Long" = "lat_long",
+                                 "Adress" = "adr"),
                      inline = TRUE),
         
         conditionalPanel(
-          condition = "input.google == 'no'",
+          condition = "input.search_meth == 'adr'",
           
-          textInput("lat_long",
-                    "Latitude, Longitude:")
+          textInput("address",
+                    "Address")
         ),
         
         conditionalPanel(
-          condition = "input.google == 'yes'",
+          condition = "input.search_meth == 'lat_long'",
           
-          textInput("address",
-                    "Address"),
+          textInput("lat",
+                    "Latitude:"),
           
-          textInput("google_key",
-                    "Google API Key:")
+          textInput("long",
+                    "Longitude:"),
+          
+          numericInput("radius",
+                       "Radius(km):",
+                       value = 40)
         ),
         
-        numericInput("radius",
-                     "Radius(km):",
-                     value = 40),
-        
-        actionButton("search",
-                     "Search")
+        submitButton("Search")
       ),
       
       # Show a plot of the generated distribution
       mainPanel(
          uiOutput("word1"),
          uiOutput("word2"),
-         uiOutput("word3")
+         uiOutput("word3"),
+         textOutput("test")
       )
    )
 )
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
+  
+   google_coords <- reactive({
+     
+     if (input$search_meth == 'adr') {
+       q <- lookup_coords(input$address, apikey = input$google_key)
+     }
+     
+     else if (input$search_meth == 'lat_long') {
+       q <- paste(input$lat, input$long, paste(input$radius, "km", sep = ""), sep = ",")
+     }
+    print(q)
+    
+    return(q)
+   })
+  
+   #tweet_results <- reactive({
+     
+     #create_token(
+       #app = "PicBook",
+       #consumer_key = input$key,
+       #consumer_secret = input$secret_key,
+       #access_token = input$token,
+       #access_secret = input$secret_token)
+     
+     #rt <- search_tweets(
+       #"lang:en", geocode = q, n = 100)
+     
+     #return(rt)
+   #})
    
    output$word1 <- renderUI({
      
@@ -91,6 +115,11 @@ server <- function(input, output) {
      
      tags$img(src = lookup_nth_icon(text, 3))
      
+   })
+   
+   output$test <- renderText({
+     
+     google_coords()
    })
 }
 
