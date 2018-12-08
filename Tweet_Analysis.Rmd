@@ -45,15 +45,18 @@ most_common_words <- function(df){
 
 most_common_words(text)
 
-nth_word <- function(df, n) {
+top_n_words <- function(df, n) {
   words <- most_common_words(text) %>%
-    head(n) %>%
     select(word)
   
-    return(as.character(words$word)[n])
+  top_words <- list()
+  for (i in 1:n) {
+    top_words[i] <- as.character(words$word)[i]
+  }
+  return(top_words)
 }
 
-nth_word(text, 1)
+top_n_words(text, 3)
 
 lookup_nth_icon <- function(df, n){
   word <- nth_word(df, n)
