@@ -1,6 +1,5 @@
-install.packages("httr")
-install.packages("rtweet")
-install.packages("magick")
+# install.packages("httr")
+# install.packages("rtweet")
 
 library(shiny)
 library(httr)
@@ -8,7 +7,10 @@ library(rtweet)
 library(readr)
 library(mdsr)
 library(tidyr)
-library(magick)
+
+# Words file to be used for matches
+words_file <- read_csv('words.csv')
+words <- words_file$Words
 
 # Function that generates the request to nounproject api
 get_nouns_api <- function(endpoint, baseurl = "http://api.thenounproject.com/", app) {
@@ -129,6 +131,23 @@ ui <- fluidPage(
                        "Radius(km):",
                        value = 40)
         ),
+        
+        # radioButtons("words_list_choice",
+                     # "Words to search for:",
+                     # choices = c("Top 100 Nouns" = "words_100",
+                                 # "Top 1000 Nouns" = "words_1000",
+                                 # "Custom List" = "words_custom"),
+                     # inline = TRUE),
+        
+        # conditionalPanel(
+           # condition = "input.words_list_choice == 'words_custom'",
+           
+           # fileInput("customfile",
+                     # "Upload custom .csv file",
+                     # accept = c("text/csv",
+                                # "text/comma-separated-values,text/plain",
+                                # ".csv"))
+        # ),
         
         # Button that runs the app
         actionButton("execute",
