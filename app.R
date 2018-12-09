@@ -196,7 +196,7 @@ server <- function(input, output) {
        access_secret = input$secret_token)
      
      results <- search_tweets(
-       "lang:en", geocode = google_coords(), n = 200)
+       "lang:en", geocode = google_coords(), n = 500)
      print(results)
      print(top_n_words(results, 3))
      
