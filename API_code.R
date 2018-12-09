@@ -8,11 +8,10 @@ library(rtweet)
 library(magick)
 library(rsvg)
 
-setup_twitter_oauth("T3GvwW1WZ0svXvFgjAWPRbIRq", "DWaSGahKAsDmo2j5TFywRBOgmpdOUo9zmGr3IdTVWyPGewl5X2")
 
 GOOGLE_MAPS_KEY <- "AIzaSyBtt_cqXkkEYIewZp5ZYp1fdhUksN92OA8"
 
-q = lookup_coords("davis, CA", apikey = "AIzaSyBtt_cqXkkEYIewZp5ZYp1fdhUksN92OA8")
+q = lookup_coords("paris", apikey = "AIzaSyBtt_cqXkkEYIewZp5ZYp1fdhUksN92OA8")
 q
 
 create_token(
@@ -23,7 +22,7 @@ create_token(
   access_secret = "pbuRacyoSRgOQC8QAPYI65ci6MZEBNdtKt2lLwvqC0yTb")
 
 rt <- search_tweets(
-  "lang:en", geocode = '37.781157,-122.39720,1mi', n = 100)
+  "lang:en", geocode = q, n = 100)
 
 paste("1","mi", sep = "")
 

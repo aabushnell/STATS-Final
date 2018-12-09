@@ -43,10 +43,10 @@ most_common_words <- function(df){
   return(word_occurences)
 }
 
-most_common_words(text)
+most_common_words(rt)
 
 top_n_words <- function(df, n) {
-  words <- most_common_words(text) %>%
+  words <- most_common_words(df) %>%
     select(word)
   
   top_words <- list()
@@ -56,20 +56,23 @@ top_n_words <- function(df, n) {
   return(top_words)
 }
 
-top_n_words(text, 3)
+top_n_words(rt, 5)
 
-lookup_nth_icon <- function(df, n){
-  word <- nth_word(df, n)
-  endpoint <- paste("icon", word, sep = "/")
+top_n_icons <- function(df, n){
+  words <- top_n_words(df, n)
   
-  res <- get_nouns_api(endpoint = endpoint)
-  icon_res <- content(res,"parsed")
-  icon_url <- icon_res$icon$preview_url
+  urls <- list()
+  for (i in 1:n) {
+    endpoint <- paste("icon", words[i], sep = "/")
+    res <- get_nouns_api(endpoint = endpoint)
+    icon_res <- content(res,"parsed")
+    urls[i] <- icon_res$icon$preview_url
+  }
   
-  return(icon_url)
+  return(urls)
 }
 
-lookup_nth_icon(text, 1)
+top_n_icons(rt, 5)
 
 
 nouns_app <- oauth_app("nouns_api", "052ecc4e19c341758fdd1bb618ce6cb4", "b1ca275beca84816ad5c16efe798b4e4")
