@@ -301,7 +301,7 @@ server <- function(input, output) {
      
      selected_word_state <- input$state_word
      
-     MapPlot(matched_state_data, selected_word)
+     MapPlot(matched_state_data, selected_word_state)
      
    })
    
