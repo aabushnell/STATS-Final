@@ -161,7 +161,10 @@ ui <- fluidPage(
                                                uiOutput("word2"),
                                                uiOutput("word3")),
                     tabPanel("US Usage", dataTableOutput(outputId = "codebook")),
-                    tabPanel("World Map", imageOutput("mappic"))
+                    tabPanel("World Map", 
+                             h5(textOutput("gatherdate")),
+                             br(),
+                             imageOutput("mappic"))
         )
       )
    )
@@ -248,6 +251,13 @@ server <- function(input, output) {
        tags$img(src = icon_3)
      )
    })
+   
+  #World Map Data Gather Date
+   output$gatherdate <- renderText({
+     paste("Showing results for data collected 12/09/2018, 7:58 - 8:21 pm")
+   })
+   
+  #World Map Pic
    output$mappic <- renderImage({
      list(src = "IconMap.png", height="500px")
    }, deleteFile = FALSE)
