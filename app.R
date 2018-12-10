@@ -177,7 +177,11 @@ ui <- fluidPage(
                     tabPanel("Application", uiOutput("word1"),
                                                uiOutput("word2"),
                                                uiOutput("word3")),
-                    tabPanel("US Usage", dataTableOutput(outputId = "codebook"),
+                    tabPanel("US Usage", 
+                                         selectInput("state_word",
+                                                     "Word:",
+                                                     choices = words),
+                                         dataTableOutput(outputId = "codebook"),
                                          plotOutput("statemap")),
                     tabPanel("World Map", 
                              h5(textOutput("gatherdate")),
@@ -272,7 +276,7 @@ server <- function(input, output) {
    
    output$statemap <- renderPlot({
      
-     selected_word <- "night"
+     selected_word <- input$state_word
      
      MapPlot(matched_state_data, selected_word)
      
