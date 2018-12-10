@@ -68,6 +68,23 @@ top_n_icons <- function(napp, df, n){
   return(urls)
 }
 
+MapPlot <- function(ds, cfill) {
+  ggplot(ds, aes(x = long, y = lat, fill = !! sym(cfill), group = map_group), color = "white") + 
+    coord_fixed(1.3) +
+    geom_polygon(alpha = 0.7) +
+    geom_polygon(color = "black", fill = NA) +
+    theme_bw() +
+    theme(
+      plot.title = element_text(hjust = 0.5),
+      axis.text = element_blank(),
+      axis.line = element_blank(),
+      axis.ticks = element_blank(),
+      panel.border = element_blank(),
+      panel.grid = element_blank(),
+      axis.title = element_blank()
+    )
+}
+
 
 # Define UI for application
 ui <- fluidPage(
@@ -160,7 +177,8 @@ ui <- fluidPage(
                     tabPanel("Application", uiOutput("word1"),
                                                uiOutput("word2"),
                                                uiOutput("word3")),
-                    tabPanel("US Usage", dataTableOutput(outputId = "codebook")),
+                    tabPanel("US Usage", dataTableOutput(outputId = "codebook"),
+                                         plotOutput("statemap")),
                     tabPanel("World Map", 
                              h5(textOutput("gatherdate")),
                              br(),
@@ -250,6 +268,14 @@ server <- function(input, output) {
        HTML(paste("3rd:" , top_n_words(text, 3)[3])),
        tags$img(src = icon_3)
      )
+   })
+   
+   output$statemap <- renderPlot({
+     
+     selected_word <- "night"
+     
+     MapPlot(matched_state_data, selected_word)
+     
    })
    
   #World Map Data Gather Date
