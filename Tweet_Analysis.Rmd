@@ -75,7 +75,7 @@ top_n_icons <- function(df, n){
 top_n_icons(rt, 5)
 
 
-nouns_app <- oauth_app("nouns_api", "052ecc4e19c341758fdd1bb618ce6cb4", "b1ca275beca84816ad5c16efe798b4e4")
+nouns_app <- oauth_app("nouns_api", "", "")
 
 get_nouns_api <- function(endpoint, baseurl = "http://api.thenounproject.com/", app = nouns_app) {
   url <- modify_url(baseurl, path = endpoint)
