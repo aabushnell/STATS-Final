@@ -291,6 +291,8 @@ server <- function(input, output) {
    # State map showing proportion of word over total tweets by state
    output$statemap <- renderPlot({
      
+     states <- map_data("state")
+     
      matched_state_data <- states %>%
        rename(map_group = group) %>%
        full_join(state_data, by = c('region' = 'State'))
