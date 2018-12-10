@@ -1,5 +1,6 @@
 # install.packages("httr")
 # install.packages("rtweet")
+# install.packages('maps')
 
 library(shiny)
 library(httr)
@@ -7,6 +8,7 @@ library(rtweet)
 library(readr)
 library(mdsr)
 library(tidyr)
+library(maps)
 
 # Words file to be used for matches
 words_file <- read_csv('words.csv')
