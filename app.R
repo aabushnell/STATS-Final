@@ -156,9 +156,13 @@ ui <- fluidPage(
       
       # Displays top 3 images
       mainPanel(
-         uiOutput("word1"),
-         uiOutput("word2"),
-         uiOutput("word3")
+          tabsetPanel(type = "tabs",
+                    tabPanel("Application", uiOutput("word1"),
+                                               uiOutput("word2"),
+                                               uiOutput("word3")),
+                    tabPanel("Metrics", dataTableOutput(outputId = "codebook")),
+                    tabPanel("Map", imageOutput("mappic"))
+        )
       )
    )
 )
@@ -244,7 +248,9 @@ server <- function(input, output) {
        tags$img(src = icon_3)
      )
    })
-
+   output$mappic <- renderImage({
+     list(src = "IconMap.png", height="500px")
+   }, deleteFile = FALSE)
 }
 
 # Run the application 
