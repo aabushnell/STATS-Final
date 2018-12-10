@@ -103,7 +103,7 @@ ui <- fluidPage(
         # Selection for type of geographic search
         radioButtons("search_meth",
                      "Search Method:",
-                     choices = c("Adress" = "adr",
+                     choices = c("Address" = "adr",
                                  "Lat/Long" = "lat_long"),
                      inline = TRUE),
         
