@@ -160,8 +160,8 @@ ui <- fluidPage(
                     tabPanel("Application", uiOutput("word1"),
                                                uiOutput("word2"),
                                                uiOutput("word3")),
-                    tabPanel("Metrics", dataTableOutput(outputId = "codebook")),
-                    tabPanel("Map", imageOutput("mappic"))
+                    tabPanel("US Usage", dataTableOutput(outputId = "codebook")),
+                    tabPanel("World Map", imageOutput("mappic"))
         )
       )
    )
@@ -200,7 +200,7 @@ server <- function(input, output) {
        access_secret = input$secret_token)
      
      results <- search_tweets(
-       "lang:en", geocode = google_coords(), n = 500)
+       "lang:en", geocode = google_coords(), n = 460)
      print(results)
      print(top_n_words(results, 3))
      
