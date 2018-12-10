@@ -12,6 +12,12 @@ library(tidyr)
 words_file <- read_csv('words.csv')
 words <- words_file$Words
 
+# Data of proportion of words tweeted by state
+state_data <- read_csv('state_data.csv')
+
+# Data of proportion of words tweeted by hour
+time_data_read <- read_csv('time_data.csv')
+
 # Function that generates the request to nounproject api
 get_nouns_api <- function(endpoint, baseurl = "http://api.thenounproject.com/", app) {
   url <- modify_url(baseurl, path = endpoint)
@@ -68,6 +74,7 @@ top_n_icons <- function(napp, df, n){
   return(urls)
 }
 
+# Function to generate map graphic with color based on some data proportion
 MapPlot <- function(ds, cfill) {
   ggplot(ds, aes(x = long, y = lat, fill = !! sym(cfill), group = map_group), color = "white") + 
     coord_fixed(1.3) +
@@ -81,8 +88,10 @@ MapPlot <- function(ds, cfill) {
       axis.ticks = element_blank(),
       panel.border = element_blank(),
       panel.grid = element_blank(),
-      axis.title = element_blank()
-    )
+      axis.title = element_blank()) +
+    labs(title = "Average Usage of Words Per Tweet Per State (Data generated at 3:00PM EST)") +
+    scale_fill_gradient("Average usage")
+      
 }
 
 
@@ -183,6 +192,11 @@ ui <- fluidPage(
                                                      choices = words),
                                          dataTableOutput(outputId = "codebook"),
                                          plotOutput("statemap")),
+                    tabPanel("Usage Over Time",
+                                         selectInput("time_word",
+                                                     "Word:",
+                                                     choices = words),
+                                         plotOutput("timegraph")),
                     tabPanel("World Map", 
                              h5(textOutput("gatherdate")),
                              br(),
@@ -274,12 +288,27 @@ server <- function(input, output) {
      )
    })
    
+   # State map showing proportion of word over total tweets by state
    output$statemap <- renderPlot({
      
-     selected_word <- input$state_word
+     matched_state_data <- states %>%
+       rename(map_group = group) %>%
+       full_join(state_data, by = c('region' = 'State'))
+     
+     selected_word_state <- input$state_word
      
      MapPlot(matched_state_data, selected_word)
      
+   })
+   
+   output$timegraph <- renderPlot({
+     
+     selected_word_time <- input$time_word
+     
+     ggplot(time_data_read, aes_string(x='Time', y=selected_word_time)) + geom_line() + geom_point() +
+       labs(title = "Average Usage of Words Per Tweet Per Hour (Data generated for California from 6:00AM - 2:00PM PST)") +
+       scale_x_continuous("Hour (24 hr format)", breaks = c(6,7,8,9,10,11,12,13,14)) +
+       scale_y_continuous("Average Usages Per Hour")
    })
    
   #World Map Data Gather Date
