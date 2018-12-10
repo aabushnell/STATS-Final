@@ -9,6 +9,8 @@ output: html_document
 library(readr)
 library(mdsr)
 library(tidyr)
+library(tidyverse)
+library(rlang)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -97,6 +99,59 @@ present_words <- function(df, col_num){
 }
 
 present_words(matched)
+```
 
+```{r}
+state_data <- data.frame(words) %>%
+  rename(word = words)
+for (name in c("California","Iowa","Nevada")) {
+  q = lookup_coords(name, apikey = "AIzaSyBtt_cqXkkEYIewZp5ZYp1fdhUksN92OA8")
+
+  rt <- search_tweets(
+  "lang:en", geocode = q, n = 500)
+  
+  num_rows <- rt %>%
+    summarise(n())
+  num_rows$`n()`
+  
+  rt_words <- most_common_words(rt) %>%
+    mutate(occurences = occurences / num_rows$`n()`) %>%
+    inner_join(state_data, by = 'word') %>%
+    rename(!!name := occurences)
+  state_data <- rt_words
+  
+}
+
+states <- map_data("state")
+
+state_data_trans <- state_data %>%
+  gather(State, proportion, -word) %>%
+  spread(word, proportion) %>%
+  mutate(State = tolower(State))
+
+matched_state_data <- states %>%
+  rename(map_group = group) %>%
+  full_join(state_data_trans, by = c('region' = 'State'))
+
+MapPlot <- function(ds, cfill) {
+  ggplot(ds, aes(x = long, y = lat, fill = !! sym(cfill), group = map_group), color = "white") + 
+    coord_fixed(1.3) +
+    geom_polygon(alpha = 0.7) +
+    geom_polygon(color = "black", fill = NA) +
+    theme_bw() +
+    theme(
+    plot.title = element_text(hjust = 0.5),
+    axis.text = element_blank(),
+    axis.line = element_blank(),
+    axis.ticks = element_blank(),
+    panel.border = element_blank(),
+    panel.grid = element_blank(),
+    axis.title = element_blank()
+  )
+}
+
+selected_word <- "art"
+
+MapPlot(matched_state_data, selected_word)
 
 ```
