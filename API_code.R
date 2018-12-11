@@ -11,13 +11,13 @@ library(rsvg)
 
 GOOGLE_MAPS_KEY <- ""
 
-q = lookup_coords("paris", apikey = "")
+q = lookup_coords("california", apikey = google_key)
 q
 
 
 
-rt <- search_tweets(
-  "lang:en", geocode = q, n = 100)
+rt_18 <- search_tweets(
+  "lang:en", geocode = q, n = 500)
 
 paste("1","mi", sep = "")
 
