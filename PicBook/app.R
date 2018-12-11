@@ -10,6 +10,8 @@ library(mdsr)
 library(tidyr)
 library(maps)
 
+source('config.R')
+
 # Words file to be used for matches
 words_file <- read_csv('words.csv')
 words <- words_file$Words
@@ -108,28 +110,6 @@ ui <- fluidPage(
      
       sidebarPanel(
         
-        # Inputs for all the api keys...
-        textInput("key",
-                  "Twitter API Key:"),
-        
-        textInput("secret_key",
-                  "Twitter API Secret Key:"),
-        
-        textInput("token",
-                  "Twitter API Access Token"),
-        
-        textInput("secret_token",
-                  "Twitter API Access Token Secret:"),
-        
-        textInput("noun_key",
-                  "Noun Project API Key:"),
-        
-        textInput("noun_secret_key",
-                  "Noun Project API Secret Key:"),
-        
-        textInput("google_key",
-                  "Google API Key:"),
-        
         # Selection for type of geographic search
         radioButtons("search_meth",
                      "Search Method:",
@@ -214,10 +194,8 @@ server <- function(input, output) {
    # Generates geocode input based on selected input method
    google_coords <- reactive({
      
-     req(input$google_key)
-     
      if (input$search_meth == 'adr') {
-       q <- lookup_coords(input$address, apikey = input$google_key)
+       q <- lookup_coords(input$address, apikey = google_key)
      }
      
      else if (input$search_meth == 'lat_long') {
@@ -231,14 +209,12 @@ server <- function(input, output) {
    # Searches for actual data from twitter
    tweet_results <- eventReactive(input$execute, {
      
-     req(input$key, input$secret_key, input$token, input$secret_token)
-     
      create_token(
        app = "PicBook",
-       consumer_key = input$key,
-       consumer_secret = input$secret_key,
-       access_token = input$token,
-       access_secret = input$secret_token)
+       consumer_key = twitter_key,
+       consumer_secret = twitter_secret_key,
+       access_token = twitter_token,
+       access_secret = twitter_secret_token)
      
      results <- search_tweets(
        "lang:en", geocode = google_coords(), n = 460)
@@ -250,7 +226,7 @@ server <- function(input, output) {
    
    # Generates api info to be used by 'get_nouns_api' function
    noun_app_info <- eventReactive(input$execute, {
-     nouns_app <- oauth_app("nouns_api", input$noun_key, input$noun_secret_key)
+     nouns_app <- oauth_app("nouns_api", nouns_key, nouns_secret_key)
    })
    
    # First word/icon
