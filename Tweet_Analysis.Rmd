@@ -150,7 +150,7 @@ MapPlot <- function(ds, cfill) {
   )
 }
 
-selected_word <- "night"
+selected_word <- "thing"
 
 MapPlot(matched_state_data, selected_word)
 
@@ -161,14 +161,14 @@ write.csv(state_data_trans, file = "state_data.csv")
 time_data <- data.frame(words) %>%
   rename(word = words)
 
-num_rows <- rt_14 %>%
+num_rows <- rt_19 %>%
     summarise(n())
   num_rows$`n()`
   
-rt_words <- most_common_words(rt_14) %>%
+rt_words <- most_common_words(rt_19) %>%
   mutate(occurences = occurences / num_rows$`n()`) %>%
   inner_join(time_data, by = 'word') %>%
-  rename('14' = occurences)
+  rename('19' = occurences)
 time_data <- rt_words
 
 time_data_trans <- time_data %>%

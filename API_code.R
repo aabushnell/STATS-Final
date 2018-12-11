@@ -16,7 +16,7 @@ q
 
 
 
-rt_18 <- search_tweets(
+rt_19 <- search_tweets(
   "lang:en", geocode = q, n = 500)
 
 paste("1","mi", sep = "")

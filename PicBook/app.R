@@ -93,7 +93,7 @@ MapPlot <- function(ds, cfill) {
       panel.border = element_blank(),
       panel.grid = element_blank(),
       axis.title = element_blank()) +
-    labs(title = "Average Usage of Words Per Tweet Per State (Data generated at 3:00PM EST)") +
+    labs(title = "Average Usage of Words Per Tweet Per State (Data generated at 3:00PM EST 12/10/18)") +
     scale_fill_gradient("Average usage")
       
 }
@@ -217,7 +217,7 @@ server <- function(input, output) {
        access_secret = twitter_secret_token)
      
      results <- search_tweets(
-       "lang:en", geocode = google_coords(), n = 460)
+       "lang:en", geocode = google_coords(), n = 500)
      print(results)
      print(top_n_words(results, 3))
      
@@ -286,14 +286,14 @@ server <- function(input, output) {
      selected_word_time <- input$time_word
      
      ggplot(time_data_read, aes_string(x='Time', y=selected_word_time)) + geom_line() + geom_point() +
-       labs(title = "Average Usage of Words Per Tweet Per Hour (Data generated for California from 6:00AM - 2:00PM PST)") +
+       labs(title = "Average Usage of Words Per Tweet Per Hour (Data generated for California from 6:00AM - 2:00PM PST 12/10/18)") +
        scale_x_continuous("Hour (24 hr format)", breaks = c(6,7,8,9,10,11,12,13,14)) +
-       scale_y_continuous("Average Usages Per Hour")
+       scale_y_continuous("Average Word Usage Per Tweet")
    })
    
   #World Map Data Gather Date
    output$gatherdate <- renderText({
-     paste("Showing results for data collected 12/09/2018, 7:58 - 8:21 pm")
+     paste("Top tweeted word's from locations around the globe! (results for data collected 12/09/2018, 7:58 - 8:21 pm)")
    })
    
   #World Map Pic
