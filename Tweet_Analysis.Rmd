@@ -179,5 +179,5 @@ time_data_trans <- time_data %>%
 
 ggplot(time_data_trans, aes_string(x='Time', y=selected_word)) + geom_line() + geom_point()
 
-write.csv(time_data_trans, file = "time_data.csv")
+write.csv(time_data_trans, file = "PicBook/time_data.csv")
 ```
