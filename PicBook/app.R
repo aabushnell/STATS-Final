@@ -286,8 +286,8 @@ server <- function(input, output) {
      selected_word_time <- input$time_word
      
      ggplot(time_data_read, aes_string(x='Time', y=selected_word_time)) + geom_line() + geom_point() +
-       labs(title = "Average Usage of Words Per Tweet Per Hour (Data generated for California from 6:00AM - 2:00PM PST 12/10/18)") +
-       scale_x_continuous("Hour (24 hr format)", breaks = c(6,7,8,9,10,11,12,13,14,15,16,17,19)) +
+       labs(title = "Average Usage of Words Per Tweet Per Hour (Data generated for California from 6:00AM - 7:00PM PST 12/10/18)") +
+       scale_x_continuous("Hour (24 hr format)", breaks = c(6,7,8,9,10,11,12,13,14,15,16,17,18,19)) +
        scale_y_continuous("Average Word Usage Per Tweet")
    })
    
