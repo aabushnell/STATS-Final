@@ -18,3 +18,10 @@ To run 'PicBook'
 
 4. If necessary run the commented out code at the top of app.R to install the required packages for PicBook (httr,rtweet, and maps)
 5. Run app.R to execute the shiny app for PicBook
+
+To use 'PicBook'
+
+1. In the top left corner choose a search method of either Address or Lat/Long, boxes for the appropriate input will appear.
+2. An address search is very broad. It is essentially anything you would search in google maps. It can be as specific as a street adress i.e. `81 Lessey St, Amherst, MA` or as broad as a country i.e. `brazil`.
+3. Icons for the top three recently tweeted words for the selected region will appear on the right in the Application panel
+4. Other panels feature maps and graphics using pregenerated data, showing off some interesting applications of our data gathering method. Some are interactive and require one to select a word from our list of nouns in a drop down menu.
