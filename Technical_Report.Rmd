@@ -1,0 +1,35 @@
+---
+title: "technical report"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+I. ABSTRACT
+
+We created a web application, PicBook, that displays image representations of the most commonly tweeted nouns in any given location. By using API data from Twitter, Google Maps, and a word-to-icon generating site called The Noun Project, PicBook generates and displays pictorial icons depicting the most tweeted nouns in any user-entered region (address or coordinates/radius). The app, which is precoded with a list of 100 common nouns, sends the user-input location through the Google Places API, the Twitter API, and the Noun Project API to diplay the region's top 3 most commonly tweeted nouns (of the 100) and their corresponding icons. To exemplify the utility of our app, we built additional tabs into the Shiny interface, which display static graphics that show different temporal and spatial metrics for a set of precollected data.
+
+II. INTRODUCTION
+
+Pictorial writing is one of the oldest forms of written communication that dates farther back in history than spoken language. Conversely, social media is one of the most widely used forms of communication in the modern age. What can reconciling these two form of written language tell us about the relationships between words and pictures? How can we use pictorial representations to better understand the impact words and their usages? 
+
+To examine this, we built a Shiny app, Picbook, that converts words used in Twitter posts into pictorial icons. Our app, precoded with a list of 100 common nouns, allows the user to type in a location, either an address or coordinates/radius; when entered, it outputs the top 3 of the 100 nouns most frequently used in the (approximately) 500 most recent tweets sent from that location. The application inputs the user-entered region through the Google Places API, which geographically identifies and generates a geocode for that region. The geocode is then input through the Twitter API, which identifies the most recent tweets (a specified number) published within that geographical region. Nouns are then parsed out from those tweets; of the 100 pre-coded nouns, the three most frequently used are looked up in the The Noun Project’s API data, which finally generates and displays the icons corresponding to those nouns. The app also includes 3 tabs that display different temporal and spatial metrics: the proportion of usage of a selected word across states, the usage frequency of a selected word across different times in a day, and the top most used word in major cities worldwide. 
+
+Through this app and the visuals we produced through it, we aimed to accomplish 3 goals: to create a dynamic tool that can answer a variance of questions about most tweeted words across regions; to create an evocative type of output that presents data for a popular social tool in an engaging way; and to examine the way in which visuals can increase or change the impact of results. 
+
+III. DATA
+
+IV. RESULTS
+
+```{r}
+
+```
+
+V. CONCLUSIONS
+
+
+
+
+
+Unlike the interactive Shiny app, which collects live data, the information displayed in thee tabs is collected in advance and thus shows only a static representation of data for a specific date and time. One purpose of building this app is to examine what kinds of words are being tweeted and how this differs across regions, while another purpose is simply to provide an evocative visual representation of a popular mode of social communication.
