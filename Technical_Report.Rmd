@@ -180,7 +180,7 @@ matched_state_data <- states %>%
  full_join(state_data, by = c('region' = 'State'))
 ```
 
-We also 
+We also ran the same `search_tweets` function (for `address='california'`) every hour from 6AM-7PM PST. Each hours result was saved under a different name corresponding to the hour it was searched (i.e `rt_8`) and then the following code was used to merge together the hour data, changing the numbers in the code to match the appropriate hour. The `time_data_trans` result was saved as `time_data.csv` to be used by the app.
 ```{r}
 time_data_read <- read_csv('time_data.csv')
 
@@ -207,6 +207,7 @@ time_data_trans <- time_data %>%
 IV. RESULTS
 
 
+With the following code, one can search for the top nouns, and display a specific image from the listed, identified by ordinal number. In our app we chose to display the top three images/nouns for each region searched. 
 ```{r}
 total_noun_num <- 3 #Change to search for more icons
 url_list <- top_n_urls(matched_words, total_noun_num)
@@ -216,6 +217,7 @@ icon <- image_read(url_list[current_noun_num])
 print(icon)
 ```
 
+Moreover, for a selected word from our words list, we created the following plot showing the proportion of tweets with a that word appearing in them per state. This was done using the `state_data` defined earlier.
 ```{r}
 selected_word_state <- ''
 
@@ -236,6 +238,7 @@ ggplot(state_data, aes_string(x = 'long', y = 'lat', fill = selected_word_state,
     scale_fill_gradient("Average usage")
 ```
 
+We also created the following histogram for our  
 ```{r}
 selected_word_times <- ''
 
