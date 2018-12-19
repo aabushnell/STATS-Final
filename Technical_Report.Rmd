@@ -143,10 +143,10 @@ top_n_urls <- function(words, n){
 }
 ```
 
-In addition to our dynamic, interactive generation of icons for the top tweeted words we also prepared static data on the usage of the same words in tweets. 
+In addition to our dynamic, interactive generation of icons for the top tweeted words we also prepared static data on the usage of the same words in tweets. We used the same `search_tweets` function for this, running a function that searched for tweets from each US state, then merged all the results together into one big df. Then, we merged this data with map data (from ggplot and the `maps` package) in order to create a map plot by states. This `matched_state_data` is what was saved as `state_data.csv` and used in our app.
 ```{r}
 state_data <- read_csv('state_data.csv')
-
+# Function that searches for a tweet sample for each US state, then organizes them together into one df 
 state_data <- data.frame(words) %>%
   rename(word = words)
 for (name in state.name) {
@@ -159,16 +159,28 @@ for (name in state.name) {
     summarise(n())
   num_rows$`n()`
   
-  rt_words <- most_common_words(rt) %>%
+  rt_words <- data.frame(mapply(match_words, rt$text))  %>%
+    cbind(rownames(text_matches)) %>%
+    rename(word = 'rownames(text_matches)') %>%
+    mutate(occurences = rowSums(. == TRUE)) %>%
+    select(word, occurences) %>%
+    arrange(desc(occurences)) %>%
     mutate(occurences = occurences / num_rows$`n()`) %>%
     inner_join(state_data, by = 'word') %>%
     rename(!!name := occurences)
   state_data <- rt_words
   
 }
+
+# Calls state geodata from maps package
+states <- map_data("state")
+# Adds our data to states geodata
+matched_state_data <- states %>%
+ rename(map_group = group) %>%
+ full_join(state_data, by = c('region' = 'State'))
 ```
 
-
+We also 
 ```{r}
 time_data_read <- read_csv('time_data.csv')
 
