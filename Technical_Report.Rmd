@@ -7,11 +7,15 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
 I. ABSTRACT
+
 
 We created a web application, PicBook, that displays image representations of the most commonly tweeted nouns in any given location. By using API data from Twitter, Google Maps, and a word-to-icon generating site called The Noun Project, PicBook generates and displays pictorial icons depicting the most tweeted nouns in any user-entered region (address or coordinates/radius). The app, which is precoded with a list of 100 common nouns, sends the user-input location through the Google Places API, the Twitter API, and the Noun Project API to diplay the region's top 3 most commonly tweeted nouns (of the 100) and their corresponding icons. To exemplify the utility of our app, we built additional tabs into the Shiny interface, which display static graphics that show different temporal and spatial metrics for a set of precollected data.
 
+
 II. INTRODUCTION
+
 
 Pictorial writing is one of the oldest forms of written communication that dates farther back in history than spoken language. Conversely, social media is one of the most widely used forms of communication in the modern age. What can reconciling these two form of written language tell us about the relationships between words and pictures? How can we use pictorial representations to better understand the impact words and their usages? 
 
@@ -19,7 +23,9 @@ To examine this, we built a Shiny app, Picbook, that converts words used in Twit
 
 Through this app and the visuals we produced through it, we aimed to accomplish 3 goals: to create a dynamic tool that can answer a variance of questions about most tweeted words across regions; to create an evocative type of output that presents data for a popular social tool in an engaging way; and to examine the way in which visuals can increase or change the impact of results. 
 
+
 III. DATA
+
 
 First, the following packages must be installed and libraries loaded.
 ```{r}
@@ -98,14 +104,14 @@ get_nouns_api <- function(endpoint, baseurl = "http://api.thenounproject.com/", 
 } 
 ```
 
-
+Using the tweet data obtained from the Twitter API, we then used the words list loaded earlier to search for matches between words in the list and words in the tweets from our tweets df. This was done for each tweet in the df. Then, we added up the number of matches for each word over the entire sample of tweets. From there, we defined two functions: one that defines a list with the top n words by number of matches and one that defines a list with urls leading to .pngs with icons (from Noun Project API) that represent the top n matches. These urls are generated, for each top word, using the `get_nouns_api` function defined earlier, extracting the `preview_url` value from the result.
 ```{r}
 match_words <- function(tweet){
   matched_values <- sapply(words, grepl, tweet)
   return(matched_values)
 }
 
-matched_words <- data.frame(mapply(match_words, df$text))  %>%
+matched_words <- data.frame(mapply(match_words, rt$text))  %>%
   cbind(rownames(text_matches)) %>%
   rename(word = 'rownames(text_matches)') %>%
   mutate(occurences = rowSums(. == TRUE)) %>%
@@ -113,16 +119,21 @@ matched_words <- data.frame(mapply(match_words, df$text))  %>%
   arrange(desc(occurences)) %>%
   select(word)
 
-top_n_urls <- function(words, n){
+top_n_words <- function(words, n) {
+  # Defines list with the n most common words
   top_words <- list()
   for (i in 1:n) {
     top_words[i] <- as.character(words$word)[i]
   }
+  return(top_words)
+}
+
+top_n_urls <- function(words, n){
   # Generates endpoints for words from top_n_words function and then queries a response from nounproject API
   # A url with a link to a .png of the corresponding icon is then taken from this response
   urls <- list()
   for (i in 1:n) {
-    endpoint <- paste("icon", top_words[i], sep = "/")
+    endpoint <- paste("icon", as.character(words$word)[i], sep = "/")
     res <- get_nouns_api(endpoint = endpoint, app = nouns_app)
     icon_res <- content(res,"parsed")
     urls[i] <- icon_res$icon$preview_url
@@ -132,7 +143,7 @@ top_n_urls <- function(words, n){
 }
 ```
 
-
+In addition to our dynamic, interactive generation of icons for the top tweeted words we also prepared static data on the usage of the same words in tweets. 
 ```{r}
 state_data <- read_csv('state_data.csv')
 
@@ -155,7 +166,10 @@ for (name in state.name) {
   state_data <- rt_words
   
 }
+```
 
+
+```{r}
 time_data_read <- read_csv('time_data.csv')
 
 time_data <- data.frame(words) %>%
@@ -177,7 +191,9 @@ time_data_trans <- time_data %>%
   mutate(Time = as.numeric(Time))
 ```
 
+
 IV. RESULTS
+
 
 ```{r}
 total_noun_num <- 3 #Change to search for more icons
