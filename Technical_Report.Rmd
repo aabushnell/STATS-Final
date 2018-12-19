@@ -32,6 +32,7 @@ First, the following packages must be installed and libraries loaded.
 install.packages("httr")
 install.packages("rtweet")
 install.packages('maps')
+install.packages("magick")
 
 library(httr)
 library(rtweet)
@@ -39,6 +40,7 @@ library(readr)
 library(mdsr)
 library(tidyr)
 library(maps)
+library(magick)
 ```
 
 In order to run this code properly, several API keys and tokens are required. Make sure you have access to the Google Places API (https://developers.google.com/places/web-service/intro), the standard Twitter APIs through a developer account (https://developer.twitter.com/en/docs/basics/getting-started), and the Noun Project api through a Noun Project account (https://api.thenounproject.com/getting_started.html). Then, make a file called `config.R` with the following variables saved with the appropriate values (as strings):
@@ -143,7 +145,7 @@ top_n_urls <- function(words, n){
 }
 ```
 
-In addition to our dynamic, interactive generation of icons for the top tweeted words we also prepared static data on the usage of the same words in tweets. We used the same `search_tweets` function for this, running a function that searched for tweets from each US state, then merged all the results together into one big df. Then, we merged this data with map data (from ggplot and the `maps` package) in order to create a map plot by states. This `matched_state_data` is what was saved as `state_data.csv` and used in our app.
+In addition to our dynamic, interactive generation of icons for the top tweeted words we also prepared static data on the usage of the same words in tweets. We used the same `search_tweets` function for this, running a function that searched for tweets from each US state, then merged all the results together into one big df. Then, we merged this data with map data (from ggplot and the `maps` package) in order to create a map plot by states. This `matched_state_data` is what was saved as `state_data.csv` and used in our app. The data was found at 3PM EST, 12/10/18.
 ```{r}
 state_data <- read_csv('state_data.csv')
 # Function that searches for a tweet sample for each US state, then organizes them together into one df 
@@ -180,7 +182,7 @@ matched_state_data <- states %>%
  full_join(state_data, by = c('region' = 'State'))
 ```
 
-We also ran the same `search_tweets` function (for `address='california'`) every hour from 6AM-7PM PST. Each hours result was saved under a different name corresponding to the hour it was searched (i.e `rt_8`) and then the following code was used to merge together the hour data, changing the numbers in the code to match the appropriate hour. The `time_data_trans` result was saved as `time_data.csv` to be used by the app.
+We also ran the same `search_tweets` function (for `address='california'`) every hour from 6AM-7PM PST, 12/10/18. Each hours result was saved under a different name corresponding to the hour it was searched (i.e `rt_8`) and then the following code was used to merge together the hour data, changing the numbers in the code to match the appropriate hour. The `time_data_trans` result was saved as `time_data.csv` to be used by the app.
 ```{r}
 time_data_read <- read_csv('time_data.csv')
 
@@ -207,6 +209,8 @@ time_data_trans <- time_data %>%
 IV. RESULTS
 
 
+Are results from our data are meant to be more artistic than scientific. They are meant to evoke an intellectual and emotional connection to the data from our sample. We want to show how a bunch of random tweets can be distilled down into simple pictures forming a framework for the mind to feel a connection to the results as it imagines deeper meaning. Our point is that presenting data in the way we do, using simple nouns and pictographic representation, allows for a deep humanistic connection to data, even if no high level technical analysis is done.
+
 With the following code, one can search for the top nouns, and display a specific image from the listed, identified by ordinal number. In our app we chose to display the top three images/nouns for each region searched. 
 ```{r}
 total_noun_num <- 3 #Change to search for more icons
@@ -217,9 +221,9 @@ icon <- image_read(url_list[current_noun_num])
 print(icon)
 ```
 
-Moreover, for a selected word from our words list, we created the following plot showing the proportion of tweets with a that word appearing in them per state. This was done using the `state_data` defined earlier.
+Moreover, for a selected word from our words list, we created the following plot showing the proportion of tweets with that word appearing in them per state. This was done using the `state_data` defined earlier. Using this interactive (at least in our shiny app) one can see how in any given moment, the content of tweets can vary significantly by state. The results displayed in map format, coupled with any American's preconcieved perception of the unique character of each state easily leads us to jump to conclusions about the results displayed here, with a story behind the data easy to imagine.
 ```{r}
-selected_word_state <- ''
+selected_word_state <- '# Enter word here'
 
 ggplot(state_data, aes_string(x = 'long', y = 'lat', fill = selected_word_state, group = 'map_group'), color = "white") + 
     coord_fixed(1.3) +
@@ -238,9 +242,9 @@ ggplot(state_data, aes_string(x = 'long', y = 'lat', fill = selected_word_state,
     scale_fill_gradient("Average usage")
 ```
 
-We also created the following histogram for our  
+We also created the following histogram for our `time_data_read` defined earlier. The plot displays the proportion of tweets with a selected word in them for each hour from 6AM to 7PM PST in California on 12/10/18. Again, presenting data on our simple words in this format lends itself to the imagination; one can imagine how people would be tweeting and thinking differently at different times of day and the brain can come up with many stories to explain these differences. For example, notice that tweets with day in themare in a higher proportion during the day in our sample—a logical connection. But also tweets with student in them seem to happen in higher proportion in early afternoon in our sample, what story can be imagined here?
 ```{r}
-selected_word_times <- ''
+selected_word_times <- '# Enter word here'
 
 ggplot(time_data_read, aes_string(x='Time', y=selected_word_time)) + geom_line() + geom_point() +
        labs(title = "Average Usage of Words Per Tweet Per Hour (Data generated for California from 6:00AM - 7:00PM PST 12/10/18)") +
@@ -249,9 +253,12 @@ ggplot(time_data_read, aes_string(x='Time', y=selected_word_time)) + geom_line()
 
 ```
 
+Finally, we also made the following image (not generated in R) to display the more artistic side of such a visual analysis. This is an ostensibly simple graphic, with an icon appearing around several global cities, but like all our other results it is more evocative to the human eye/mind than perhaps it should be.
 ```{r}
-
+map_graphic <- image_read('IconMap.png')
+print(map_graphic)
 ```
+
 
 V. CONCLUSIONS
 
