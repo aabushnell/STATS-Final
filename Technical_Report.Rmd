@@ -209,7 +209,7 @@ time_data_trans <- time_data %>%
 IV. RESULTS
 
 
-Are results from our data are meant to be more artistic than scientific. They are meant to evoke an intellectual and emotional connection to the data from our sample. We want to show how a bunch of random tweets can be distilled down into simple pictures forming a framework for the mind to feel a connection to the results as it imagines deeper meaning. Our point is that presenting data in the way we do, using simple nouns and pictographic representation, allows for a deep humanistic connection to data, even if no high level technical analysis is done.
+The results from our data are meant to be more artistic than scientific. They are meant to evoke an intellectual and emotional connection to the data from our sample. We want to show how a bunch of random tweets can be distilled down into simple pictures forming a framework for the mind to feel a connection to the results as it imagines deeper meaning. Our point is that presenting data in the way we do, using simple nouns and pictographic representation, allows for a deep humanistic connection to data, even if no high level technical analysis is done.
 
 With the following code, one can search for the top nouns, and display a specific image from the listed, identified by ordinal number. In our app we chose to display the top three images/nouns for each region searched. 
 ```{r}
