@@ -6,6 +6,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
 I. ABSTRACT
 
 We created a web application, PicBook, that displays image representations of the most commonly tweeted nouns in any given location. By using API data from Twitter, Google Maps, and a word-to-icon generating site called The Noun Project, PicBook generates and displays pictorial icons depicting the most tweeted nouns in any user-entered region (address or coordinates/radius). The app, which is precoded with a list of 100 common nouns, sends the user-input location through the Google Places API, the Twitter API, and the Noun Project API to diplay the region's top 3 most commonly tweeted nouns (of the 100) and their corresponding icons. To exemplify the utility of our app, we built additional tabs into the Shiny interface, which display static graphics that show different temporal and spatial metrics for a set of precollected data.
@@ -20,7 +21,202 @@ Through this app and the visuals we produced through it, we aimed to accomplish 
 
 III. DATA
 
+First, the following packages must be installed and libraries loaded.
+```{r}
+install.packages("httr")
+install.packages("rtweet")
+install.packages('maps')
+
+library(httr)
+library(rtweet)
+library(readr)
+library(mdsr)
+library(tidyr)
+library(maps)
+```
+
+In order to run this code properly, several API keys and tokens are required. Make sure you have access to the Google Places API (https://developers.google.com/places/web-service/intro), the standard Twitter APIs through a developer account (https://developer.twitter.com/en/docs/basics/getting-started), and the Noun Project api through a Noun Project account (https://api.thenounproject.com/getting_started.html). Then, make a file called `config.R` with the following variables saved with the appropriate values (as strings):
+```{r}
+ google_key <- '*Insert Google Places api key here*'
+ twitter_key <- '*Insert Twitter api public key here*'
+ twitter_secret_key <- '*Insert Twitter api secret key here*'
+ twitter_token <- '*Insert Twitter api public token here*'
+ twitter_secret_token <- '*Insert Twitter api secret token here*'
+ nouns_key <- '*Insert nounproject api public key here*'
+ nouns_secret_key <- '*Insert nounproject api secret key here*'
+```
+
+Then, one can load these values locally.
+```{r}
+source('config.R')
+```
+
+In order to generate geographic boundaries to search for tweets in we made use of the Google Places API. Using the `lookup_coords' function from `rtweet` one can search with some address criterion and get a boundary defined by coordinates.
+```{r}
+address <- '#Enter address here'
+q <- lookup_coords(address, apikey = google_key)
+```
+
+One can also manually generate a search region defined by a single point (and its latitude and longitude) and a radius.
+```{r}
+lat <- '#Latitude number here'
+long <- '#Longitude number here'
+radius <- '#Radius number here'
+q <- paste(lat, long, paste(radius, "km", sep = ""), sep = ",")
+```
+
+We gather our tweet data from the Twitter API with the `search_tweets` function from the `rtweet` package. First we define a token with all the appropriate key and token values (defined in `config.R`), then we run the `search_tweets` function for our geocode of `q` defined above. The result is a df with many columns but we are only concerned with the `text` column that contains the actual content of each tweet from our sample. The `search_tweets` function returns a number of recent tweets for the given geographic area. If the geographic are is defined to be small, the returned number of tweets may be smaller than the defined maximum number of tweets to be searched (`tweet_n`).
+```{r}
+create_token(app = "PicBook",
+             consumer_key = twitter_key,
+             consumer_secret = twitter_secret_key,
+             access_token = twitter_token,
+             access_secret = twitter_secret_token)
+
+# Runs search of recent tweets
+tweet_n <- 500 #Default, can change
+rt <- search_tweets(
+ "lang:en", geocode = q, n = tweet_n)
+```
+
+We've compiled a list of 100 common English nouns from https://www.espressoenglish.net/100-common-nouns-in-english/. The file consists of a single column, Words, with each word listed. Other files of nouns (or other words) saved in a similar formate could also be used instead, we simply chose a relatively short list in the interest of processing time.
+```{r}
+words_file <- read_csv('words.csv')
+# Converts the words columns into a list for later reference
+words <- words_file$Words
+```
+
+We also make use of the Noun Project API. This has been done using the `rtweet` package. First we define an oauth_app (a data type that is essentially a public and private key packaged together) and then define a function (taken from https://community.rstudio.com/t/getting-httr-to-work-with-the-noun-project-api/16165/2) to run GET requests through the API. We use GET requests with an endpoint to search for icons with a given name. This GET request returns a large amount of metadata but we only use a link to a url displaying the returned icon contained within this result.
+```{r}
+nouns_app <- oauth_app("nouns_api", nouns_key, nouns_secret_key)
+
+get_nouns_api <- function(endpoint, baseurl = "http://api.thenounproject.com/", app) {
+  url <- modify_url(baseurl, path = endpoint)
+  info <- oauth_signature(url, app = app)
+  header_oauth <- oauth_header(info)
+  GET(url, header_oauth)
+} 
+```
+
+
+```{r}
+match_words <- function(tweet){
+  matched_values <- sapply(words, grepl, tweet)
+  return(matched_values)
+}
+
+matched_words <- data.frame(mapply(match_words, df$text))  %>%
+  cbind(rownames(text_matches)) %>%
+  rename(word = 'rownames(text_matches)') %>%
+  mutate(occurences = rowSums(. == TRUE)) %>%
+  select(word, occurences) %>%
+  arrange(desc(occurences)) %>%
+  select(word)
+
+top_n_urls <- function(words, n){
+  top_words <- list()
+  for (i in 1:n) {
+    top_words[i] <- as.character(words$word)[i]
+  }
+  # Generates endpoints for words from top_n_words function and then queries a response from nounproject API
+  # A url with a link to a .png of the corresponding icon is then taken from this response
+  urls <- list()
+  for (i in 1:n) {
+    endpoint <- paste("icon", top_words[i], sep = "/")
+    res <- get_nouns_api(endpoint = endpoint, app = nouns_app)
+    icon_res <- content(res,"parsed")
+    urls[i] <- icon_res$icon$preview_url
+  }
+  
+  return(urls)
+}
+```
+
+
+```{r}
+state_data <- read_csv('state_data.csv')
+
+state_data <- data.frame(words) %>%
+  rename(word = words)
+for (name in state.name) {
+  q = lookup_coords(name, apikey = google_key)
+
+  rt <- search_tweets(
+  "lang:en", geocode = q, n = 250)
+  
+  num_rows <- rt %>%
+    summarise(n())
+  num_rows$`n()`
+  
+  rt_words <- most_common_words(rt) %>%
+    mutate(occurences = occurences / num_rows$`n()`) %>%
+    inner_join(state_data, by = 'word') %>%
+    rename(!!name := occurences)
+  state_data <- rt_words
+  
+}
+
+time_data_read <- read_csv('time_data.csv')
+
+time_data <- data.frame(words) %>%
+  rename(word = words)
+
+num_rows <- rt_19 %>%
+    summarise(n())
+  num_rows$`n()`
+  
+rt_words <- most_common_words(rt_19) %>%
+  mutate(occurences = occurences / num_rows$`n()`) %>%
+  inner_join(time_data, by = 'word') %>%
+  rename('19' = occurences)
+time_data <- rt_words
+
+time_data_trans <- time_data %>%
+  gather(Time, proportion, -word) %>%
+  spread(word, proportion) %>%
+  mutate(Time = as.numeric(Time))
+```
+
 IV. RESULTS
+
+```{r}
+total_noun_num <- 3 #Change to search for more icons
+url_list <- top_n_urls(matched_words, total_noun_num)
+
+current_noun_num <- 1 #Change to see other icons
+icon <- image_read(url_list[current_noun_num])
+print(icon)
+```
+
+```{r}
+selected_word_state <- ''
+
+ggplot(state_data, aes_string(x = 'long', y = 'lat', fill = selected_word_state, group = 'map_group'), color = "white") + 
+    coord_fixed(1.3) +
+    geom_polygon(alpha = 0.7) +
+    geom_polygon(color = "black", fill = NA) +
+    theme_bw() +
+    theme(
+      plot.title = element_text(hjust = 0.5),
+      axis.text = element_blank(),
+      axis.line = element_blank(),
+      axis.ticks = element_blank(),
+      panel.border = element_blank(),
+      panel.grid = element_blank(),
+      axis.title = element_blank()) +
+    labs(title = "Average Usage of Words Per Tweet Per State (Data generated at 3:00PM EST 12/10/18)") +
+    scale_fill_gradient("Average usage")
+```
+
+```{r}
+selected_word_times <- ''
+
+ggplot(time_data_read, aes_string(x='Time', y=selected_word_time)) + geom_line() + geom_point() +
+       labs(title = "Average Usage of Words Per Tweet Per Hour (Data generated for California from 6:00AM - 7:00PM PST 12/10/18)") +
+       scale_x_continuous("Hour (24 hr format)", breaks = c(6,7,8,9,10,11,12,13,14,15,16,17,18,19)) +
+       scale_y_continuous("Average Word Usage Per Tweet")
+
+```
 
 ```{r}
 
